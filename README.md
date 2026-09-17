@@ -1,6 +1,8 @@
 # DayPlan
 
 Planificador de día tipo [Accomplish](https://accomplish-app.com/), pero web y PWA.
+**Demo:** https://oscarlp6.dev/dayplan/
+
 Todo se guarda localmente en el navegador (IndexedDB), sin cuentas ni servidor.
 
 ## Funciones
