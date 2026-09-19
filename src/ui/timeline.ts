@@ -223,17 +223,23 @@ export class Timeline {
     block.appendChild(time);
 
     if (!preview) {
-      const handle = document.createElement('div');
-      handle.className = 'block__resize';
-      handle.setAttribute('data-no-drag', '');
-      block.appendChild(handle);
+      const handleTop = document.createElement('div');
+      handleTop.className = 'block__resize block__resize--top';
+      handleTop.setAttribute('data-no-drag', '');
+      block.appendChild(handleTop);
+
+      const handleBottom = document.createElement('div');
+      handleBottom.className = 'block__resize block__resize--bottom';
+      handleBottom.setAttribute('data-no-drag', '');
+      block.appendChild(handleBottom);
     }
     return block;
   }
 
   private attachBlockDrag(block: HTMLElement, task: Task): void {
     const time = block.querySelector<HTMLElement>('.block__time')!;
-    const handle = block.querySelector<HTMLElement>('.block__resize')!;
+    const handleTop = block.querySelector<HTMLElement>('.block__resize--top')!;
+    const handleBottom = block.querySelector<HTMLElement>('.block__resize--bottom')!;
     let grabOffset = 0;
     let start = task.start;
     let duration = task.duration;
@@ -288,7 +294,7 @@ export class Timeline {
     );
 
     draggable(
-      handle,
+      handleBottom,
       {
         onStart: () => {
           setDragging(true);
@@ -305,6 +311,38 @@ export class Timeline {
         onEnd: () => {
           setDragging(false);
           if (duration !== task.duration) void this.store.save({ ...task, duration });
+          else this.render();
+        },
+        onCancel: () => {
+          setDragging(false);
+          this.render();
+        },
+        onPan: (dy) => this.scrollBy(dy),
+      },
+      { holdMs: 0 },
+    );
+
+    draggable(
+      handleTop,
+      {
+        onStart: () => {
+          setDragging(true);
+          start = task.start;
+          duration = task.duration;
+        },
+        onMove: (e) => {
+          this.maybeAutoScroll(e.clientY);
+          const end = task.start + task.duration;
+          start = Math.max(0, Math.min(snap(this.minutesAt(e.clientY)), end - SLOT_MIN));
+          duration = end - start;
+          block.style.top = `${start * this.ppm() + 1}px`;
+          block.style.height = `${Math.max(duration * this.ppm() - 2, 12)}px`;
+          block.classList.toggle('is-short', duration <= SLOT_MIN * 2);
+          time.textContent = `${fmtTime(start)} – ${fmtTime(start + duration)}`;
+        },
+        onEnd: () => {
+          setDragging(false);
+          if (start !== task.start || duration !== task.duration) void this.store.save({ ...task, start, duration });
           else this.render();
         },
         onCancel: () => {

@@ -22,6 +22,8 @@ export interface Task {
   color: ColorId;
   /** 'YYYY-MM-DD' when scheduled, '' when it lives in the inbox. */
   date: string;
+  /** Id of the Plan (day version) this task belongs to. '' when date === ''. */
+  planId: string;
   /** Minutes from midnight. Ignored when date === ''. */
   start: number;
   /** Duration in minutes, multiple of SLOT_MIN. */
@@ -29,6 +31,17 @@ export interface Task {
   done: boolean;
   createdAt: number;
   updatedAt: number;
+}
+
+/** A named version of a day's schedule, so alternate plans can be prepared side by side. */
+export interface Plan {
+  id: string;
+  /** 'YYYY-MM-DD' this plan belongs to. */
+  date: string;
+  name: string;
+  createdAt: number;
+  /** Tab order among the plans of the same date. */
+  order: number;
 }
 
 export const INBOX = '';

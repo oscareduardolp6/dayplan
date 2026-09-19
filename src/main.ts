@@ -4,6 +4,7 @@ import { Store } from './store';
 import { Header } from './ui/header';
 import { Inbox } from './ui/inbox';
 import { openMenuModal, openTaskModal } from './ui/modal';
+import { PlanBar } from './ui/plans';
 import { Timeline } from './ui/timeline';
 import { addDays, todayKey } from './dates';
 import type { Task } from './types';
@@ -71,10 +72,11 @@ const header = new Header(store, {
   onNew: () => newTask(),
   onMenu: () => openMenu(),
 });
+const planBar = new PlanBar(store);
 
 const main = document.createElement('main');
 main.className = 'main';
-main.appendChild(timeline.el);
+main.append(planBar.el, timeline.el);
 app.append(header.el, inbox.el, main);
 
 // Close the mobile inbox drawer when tapping the timeline.
@@ -164,6 +166,7 @@ let lastDate = '';
 store.subscribe(() => {
   header.render();
   inbox.render();
+  planBar.render();
   timeline.render();
   if (store.date !== lastDate) {
     lastDate = store.date;
