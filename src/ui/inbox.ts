@@ -97,6 +97,12 @@ export class Inbox {
     card.querySelector('.card__title')!.textContent = task.title || '(sin título)';
     card.querySelector('.card__dur')!.textContent = fmtDuration(task.duration);
 
+    if (this.store.readOnly) {
+      card.classList.add('is-locked');
+      card.addEventListener('click', () => this.hooks.onEdit(task));
+      return card;
+    }
+
     let ghost: HTMLElement | null = null;
     let dropStart: number | null = null;
 

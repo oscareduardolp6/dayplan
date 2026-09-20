@@ -28,9 +28,18 @@ import {
 type Listener = () => void;
 
 const ACTIVE_PLAN_KEY = 'dayplan-active-plan';
+const READONLY_KEY = 'dayplan-readonly';
 
 function sortTasks(tasks: Task[]): Task[] {
   return tasks.sort((a, b) => a.start - b.start || b.duration - a.duration);
+}
+
+function restoreReadOnly(): boolean {
+  try {
+    return localStorage.getItem(READONLY_KEY) === '1';
+  } catch {
+    return false;
+  }
 }
 
 export class Store {
@@ -39,6 +48,8 @@ export class Store {
   inbox: Task[] = [];
   plans: Plan[] = [];
   planId = '';
+  /** When true, the timeline/inbox refuse drag-based moves and resizes (for safely reviewing a plan). */
+  readOnly = restoreReadOnly();
   private listeners = new Set<Listener>();
 
   subscribe(fn: Listener): () => void {
@@ -64,6 +75,21 @@ export class Store {
   async setDate(date: string): Promise<void> {
     this.date = date;
     await this.load();
+  }
+
+  setReadOnly(on: boolean): void {
+    if (on === this.readOnly) return;
+    this.readOnly = on;
+    try {
+      localStorage.setItem(READONLY_KEY, on ? '1' : '0');
+    } catch {
+      /* ignore */
+    }
+    this.emit();
+  }
+
+  toggleReadOnly(): void {
+    this.setReadOnly(!this.readOnly);
   }
 
   /** Switches the visible plan (version) for the current date. */

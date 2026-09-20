@@ -5,6 +5,7 @@ import { openMenuModal } from './modal';
 export class PlanBar {
   readonly el: HTMLElement;
   private tabs: HTMLElement;
+  private lockBadge: HTMLElement;
 
   constructor(private store: Store) {
     this.el = document.createElement('div');
@@ -12,6 +13,10 @@ export class PlanBar {
 
     this.tabs = document.createElement('div');
     this.tabs.className = 'planbar__tabs';
+
+    this.lockBadge = document.createElement('span');
+    this.lockBadge.className = 'planbar__lock';
+    this.lockBadge.textContent = '🔒 Solo lectura';
 
     const add = document.createElement('button');
     add.type = 'button';
@@ -25,12 +30,13 @@ export class PlanBar {
       void this.store.addPlan(name);
     });
 
-    this.el.append(this.tabs, add);
+    this.el.append(this.tabs, this.lockBadge, add);
   }
 
   render(): void {
     this.tabs.replaceChildren();
     for (const plan of this.store.plans) this.tabs.appendChild(this.buildTab(plan));
+    this.lockBadge.classList.toggle('is-visible', this.store.readOnly);
   }
 
   private buildTab(plan: Plan): HTMLElement {

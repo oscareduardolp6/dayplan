@@ -71,6 +71,10 @@ const header = new Header(store, {
   onToggleInbox: () => inbox.toggle(),
   onNew: () => newTask(),
   onMenu: () => openMenu(),
+  onToggleReadOnly: () => {
+    store.toggleReadOnly();
+    toast(store.readOnly ? 'Modo solo lectura activado' : 'Modo solo lectura desactivado');
+  },
 });
 const planBar = new PlanBar(store);
 

@@ -199,6 +199,15 @@ button {
   width: 18px;
   height: 18px;
 }
+.icon-btn.is-active {
+  background: var(--accent);
+  color: var(--accent-fg);
+}
+.icon-btn.is-active:hover {
+  background: var(--accent);
+  color: var(--accent-fg);
+  opacity: 0.9;
+}
 
 .text-btn {
   padding: 6px 12px;
@@ -323,6 +332,13 @@ button {
 .card:active {
   cursor: grabbing;
 }
+.card.is-locked {
+  cursor: pointer;
+  touch-action: pan-y;
+}
+.card.is-locked:active {
+  cursor: pointer;
+}
 .card__title {
   flex: 1;
   min-width: 0;
@@ -404,6 +420,22 @@ button {
   background: var(--bg-3);
   color: var(--fg);
 }
+.planbar__lock {
+  display: none;
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--fg-2);
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  padding: 5px 10px;
+}
+.planbar__lock.is-visible {
+  display: inline-flex;
+  align-items: center;
+}
 
 /* ---------- Timeline ---------- */
 .main {
@@ -425,6 +457,10 @@ button {
 }
 .timeline.is-dragging {
   cursor: grabbing;
+}
+.timeline.is-readonly .block {
+  cursor: pointer;
+  touch-action: pan-y;
 }
 
 .timeline__inner {

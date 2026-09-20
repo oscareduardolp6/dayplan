@@ -5,6 +5,7 @@ export interface HeaderHooks {
   onToggleInbox: () => void;
   onMenu: () => void;
   onNew: () => void;
+  onToggleReadOnly: () => void;
 }
 
 const ICONS = {
@@ -15,6 +16,8 @@ const ICONS = {
   inbox: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.5 5.1 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.5-6.9A2 2 0 0 0 16.8 4H7.2a2 2 0 0 0-1.7 1.1Z"/></svg>',
   more: '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>',
   plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+  lock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>',
+  unlock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>',
 };
 
 const THEME_KEY = 'dayplan-theme';
@@ -37,6 +40,7 @@ export class Header {
   private relSlot: HTMLElement;
   private dateInput: HTMLInputElement;
   private themeBtn: HTMLButtonElement;
+  private lockBtn: HTMLButtonElement;
 
   constructor(
     private store: Store,
@@ -59,6 +63,7 @@ export class Header {
       </nav>
       <button class="icon-btn" data-action="new" title="Nueva tarea (N)">${ICONS.plus}</button>
       <button class="icon-btn sidebar-toggle" data-action="inbox" title="Inbox">${ICONS.inbox}</button>
+      <button class="icon-btn" data-action="lock" title="Modo solo lectura"></button>
       <button class="icon-btn" data-action="theme" title="Cambiar tema"></button>
       <button class="icon-btn" data-action="menu" title="Más">${ICONS.more}</button>
     `;
@@ -67,6 +72,7 @@ export class Header {
     this.relSlot = this.el.querySelector('.header__rel-slot')!;
     this.dateInput = this.el.querySelector('input[type="date"]')!;
     this.themeBtn = this.el.querySelector('[data-action="theme"]')!;
+    this.lockBtn = this.el.querySelector('[data-action="lock"]')!;
 
     this.el.querySelectorAll<HTMLButtonElement>('[data-nav]').forEach((b) => {
       b.addEventListener('click', () => {
@@ -81,6 +87,7 @@ export class Header {
     this.el.querySelector('[data-action="inbox"]')!.addEventListener('click', () => this.hooks.onToggleInbox());
     this.el.querySelector('[data-action="menu"]')!.addEventListener('click', () => this.hooks.onMenu());
     this.themeBtn.addEventListener('click', () => this.toggleTheme());
+    this.lockBtn.addEventListener('click', () => this.hooks.onToggleReadOnly());
 
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => this.renderTheme());
     this.renderTheme();
@@ -122,5 +129,11 @@ export class Header {
     }
     this.dateInput.value = key;
     document.title = `${rel ? rel + ' · ' : ''}${fmtLong(key)} · DayPlan`;
+
+    const locked = this.store.readOnly;
+    this.lockBtn.innerHTML = locked ? ICONS.lock : ICONS.unlock;
+    this.lockBtn.title = locked ? 'Solo lectura: clic para poder editar' : 'Activar modo solo lectura';
+    this.lockBtn.classList.toggle('is-active', locked);
+    document.body.classList.toggle('is-readonly', locked);
   }
 }

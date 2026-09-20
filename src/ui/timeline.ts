@@ -167,12 +167,14 @@ export class Timeline {
     if (this.dragging) return;
     this.blocks.replaceChildren();
     this.preview = null;
+    this.el.classList.toggle('is-readonly', this.store.readOnly);
     const placements = layoutOverlaps(this.store.day);
     for (const task of this.store.day) {
       const p = placements.get(task.id) ?? { col: 0, cols: 1 };
       const block = this.buildBlock(task, p, false);
       this.position(block, task.start, task.duration, p);
-      this.attachBlockDrag(block, task);
+      if (this.store.readOnly) block.addEventListener('click', () => this.hooks.onEdit(task));
+      else this.attachBlockDrag(block, task);
       this.blocks.appendChild(block);
     }
     this.updateNow();
@@ -222,7 +224,7 @@ export class Timeline {
     time.textContent = `${fmtTime(task.start)} – ${fmtTime(task.start + task.duration)}`;
     block.appendChild(time);
 
-    if (!preview) {
+    if (!preview && !this.store.readOnly) {
       const handleTop = document.createElement('div');
       handleTop.className = 'block__resize block__resize--top';
       handleTop.setAttribute('data-no-drag', '');
