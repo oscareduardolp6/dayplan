@@ -866,7 +866,7 @@ dialog.modal::backdrop {
 .toast {
   position: fixed;
   left: 50%;
-  bottom: 24px;
+  bottom: calc(32px + env(safe-area-inset-bottom, 0px));
   transform: translateX(-50%);
   background: var(--accent);
   color: var(--accent-fg);
